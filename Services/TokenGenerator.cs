@@ -25,7 +25,7 @@ namespace ManagmentSystemApi.Services
 
             if (string.IsNullOrEmpty(jwtKey))
             {
-                throw new Exception("Restricted");
+                throw new Exception("JWT secret key is not set in the environment variables.");
             }
             var key = Encoding.UTF8.GetBytes(jwtKey);
 
