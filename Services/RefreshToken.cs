@@ -1,4 +1,5 @@
 ﻿using ManagmentSystemApi.Models;
+using System.Text.Json.Serialization;
 
 namespace ManagmentSystemApi.Services
 {
@@ -7,6 +8,7 @@ namespace ManagmentSystemApi.Services
        public Guid Id { get; set; }
        public string Token { get; set; } = string.Empty;
        public DateTime ExpirationDate { get; set; }
+       [JsonIgnore]
        public User User { get; set; } = new();
        public Guid UserId { get; set; }
     }

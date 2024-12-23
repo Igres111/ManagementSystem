@@ -1,4 +1,5 @@
 using ManagmentSystemApi.Data;
+using ManagmentSystemApi.Repositories;
 using ManagmentSystemApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ if(string.IsNullOrEmpty(key))
 builder.Services.AddDbContext<Context>(options => options.UseSqlServer(connection));
 
 builder.Services.AddScoped<TokenGenerator>();
+builder.Services.AddScoped<IUser,IUserRepository>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(x =>
     {

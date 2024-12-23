@@ -62,16 +62,15 @@ namespace ManagmentSystemApi.Services
            await _context.SaveChangesAsync();
            return refreshToken;
         }
-        public async Task<string> RefreshAccessTokenAsync(string refreshTokenFromRequest)
+        public async Task<string> RefreshAccessTokenAsync(RefreshTokenRequest refreshTokenFromRequest)
         {
             var refreshToken = await _context.RefreshToken
                 .Include(el => el.User)
-                .FirstOrDefaultAsync(el => el.Token == refreshTokenFromRequest);
+                .FirstOrDefaultAsync(el => el.Token == refreshTokenFromRequest.RefreshToken.ToString());
             if (refreshToken == null || refreshToken.ExpirationDate < DateTime.Now)
             {
                 throw new SecurityTokenException("Refresh token expired or invalid");
             }
-
             var newAccessToken = CreateAccessToken(refreshToken.User);
             var newRefreshToken = await CreateRefreshTokenAsync(refreshToken.User);
 

@@ -2,6 +2,7 @@
 using ManagmentSystemApi.Data;
 using ManagmentSystemApi.Dtos;
 using ManagmentSystemApi.Models;
+using ManagmentSystemApi.Repositories;
 using ManagmentSystemApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +16,12 @@ namespace ManagmentSystemApi.Controllers
     {
         public readonly Context _context;
         public readonly TokenGenerator _token;
-        public UserController(Context context, TokenGenerator token)
+        public readonly IUser _methods;
+        public UserController(Context context, TokenGenerator token, IUser methods)
         {
             _context = context;
             _token = token;
+            _methods = methods;
         }
 
         [HttpGet("GetUsers")]
@@ -28,7 +31,7 @@ namespace ManagmentSystemApi.Controllers
             return Ok(result);
         }
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterUser(User user)
+        public async Task<IActionResult> RegisterUser(RegisterUserDto user)
         {
             if (!ModelState.IsValid)
             {
@@ -39,18 +42,7 @@ namespace ManagmentSystemApi.Controllers
             {
                 return BadRequest("User already exist");
             }
-            User newUser = new User
-            {
-                Id = Guid.NewGuid(),
-                Name = user.Name,
-                LastName = user.LastName,
-                Email = user.Email,
-                Password = user.Password,
-                Age = user.Age,
-                Role = user.Role,
-            };
-            await _context.Users.AddAsync(newUser);
-            await _context.SaveChangesAsync();
+            await _methods.AddUser(user);
             return Ok("Registered Succesfully");
         }
         }
