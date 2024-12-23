@@ -28,7 +28,7 @@ namespace ManagmentSystemApi.Controllers
             return Ok(result);
         }
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterUser(RegisterUserDto user)
+        public async Task<IActionResult> RegisterUser(User user)
         {
             if (!ModelState.IsValid)
             {
@@ -43,32 +43,15 @@ namespace ManagmentSystemApi.Controllers
             {
                 Id = Guid.NewGuid(),
                 Name = user.Name,
+                LastName = user.LastName,
                 Email = user.Email,
                 Password = user.Password,
                 Age = user.Age,
-                Role = "User"
+                Role = user.Role,
             };
             await _context.Users.AddAsync(newUser);
             await _context.SaveChangesAsync();
             return Ok("Registered Succesfully");
         }
-            //[HttpPost("Register")]
-            //public async Task<IActionResult> RegisterUser(RegisterUserDto user)
-            //{
-            //    User newUser = new User
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        Name = user.Name,
-            //        Email = user.Email,
-            //        Password = user.Password,
-            //        Age = user.Age,
-            //        Role = "User"
-            //    };
-            //    _token.CreateAccessToken(newUser);
-            //    await _context.Users.AddAsync(newUser);
-            //    await _context.SaveChangesAsync();
-
-            //    return Ok("Registered Succesfully");
-            //}
         }
 }
