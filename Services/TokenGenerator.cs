@@ -1,6 +1,7 @@
 ﻿using DotNetEnv;
 using ManagmentSystemApi.Data;
 using ManagmentSystemApi.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,10 +16,10 @@ namespace ManagmentSystemApi.Services
         public readonly IConfiguration _configuration;
         public TokenGenerator(Context context, IConfiguration configuration)
         {
-            _context= context;
+            _context = context;
             _configuration = configuration;
         }
-        public string AccessToken(User user)
+        public string CreateAccessToken(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtKey = Environment.GetEnvironmentVariable("Key");
@@ -32,7 +33,7 @@ namespace ManagmentSystemApi.Services
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new(JwtRegisteredClaimNames.Sub, user.Name), 
+                new(JwtRegisteredClaimNames.Sub, user.Name),
                 new(JwtRegisteredClaimNames.Email, user.Email),
                 new(ClaimTypes.Role, "User")
             };
@@ -47,6 +48,37 @@ namespace ManagmentSystemApi.Services
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        public async Task<RefreshToken> CreateRefreshTokenAsync(User user)
+        {
+            var refreshToken = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                Token = Guid.NewGuid().ToString(),
+                ExpirationDate = DateTime.UtcNow.AddDays(7),
+            };
+           await _context.RefreshToken.AddAsync(refreshToken);
+           await _context.SaveChangesAsync();
+           return refreshToken;
+        }
+        public async Task<string> RefreshAccessTokenAsync(string refreshTokenFromRequest)
+        {
+            var refreshToken = await _context.RefreshToken
+                .Include(el => el.User)
+                .FirstOrDefaultAsync(el => el.Token == refreshTokenFromRequest);
+            if (refreshToken == null || refreshToken.ExpirationDate < DateTime.Now)
+            {
+                throw new SecurityTokenException("Refresh token expired or invalid");
+            }
+
+            var newAccessToken = CreateAccessToken(refreshToken.User);
+            var newRefreshToken = await CreateRefreshTokenAsync(refreshToken.User);
+
+            _context.RefreshToken.Remove(refreshToken);
+            await _context.SaveChangesAsync();
+
+            return newAccessToken;
         }
     }
 }

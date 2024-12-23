@@ -1,4 +1,6 @@
-﻿using ManagmentSystemApi.Data;
+﻿using Azure.Core;
+using ManagmentSystemApi.Data;
+using ManagmentSystemApi.Dtos;
 using ManagmentSystemApi.Models;
 using ManagmentSystemApi.Services;
 using Microsoft.AspNetCore.Http;
@@ -25,11 +27,48 @@ namespace ManagmentSystemApi.Controllers
             var result = await _context.Users.ToListAsync();
             return Ok(result);
         }
-        [HttpPost("AddUser")]
-        public async Task<IActionResult> PostUser(User user)
+        [HttpPost("Register")]
+        public async Task<IActionResult> RegisterUser(RegisterUserDto user)
         {
-         var token =  _token.AccessToken(user);
-            return Ok(token);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var exist = await _context.Users.FirstOrDefaultAsync(x => x.Email == user.Email);
+            if (exist != null)
+            {
+                return BadRequest("User already exist");
+            }
+            User newUser = new User
+            {
+                Id = Guid.NewGuid(),
+                Name = user.Name,
+                Email = user.Email,
+                Password = user.Password,
+                Age = user.Age,
+                Role = "User"
+            };
+            await _context.Users.AddAsync(newUser);
+            await _context.SaveChangesAsync();
+            return Ok("Registered Succesfully");
         }
-    }
+            //[HttpPost("Register")]
+            //public async Task<IActionResult> RegisterUser(RegisterUserDto user)
+            //{
+            //    User newUser = new User
+            //    {
+            //        Id = Guid.NewGuid(),
+            //        Name = user.Name,
+            //        Email = user.Email,
+            //        Password = user.Password,
+            //        Age = user.Age,
+            //        Role = "User"
+            //    };
+            //    _token.CreateAccessToken(newUser);
+            //    await _context.Users.AddAsync(newUser);
+            //    await _context.SaveChangesAsync();
+
+            //    return Ok("Registered Succesfully");
+            //}
+        }
 }
