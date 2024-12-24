@@ -4,7 +4,9 @@ using ManagmentSystemApi.Models;
 using ManagmentSystemApi.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Sprache;
+using System.Security;
 
 namespace ManagmentSystemApi.Repositories
 {
@@ -48,6 +50,10 @@ namespace ManagmentSystemApi.Repositories
                 return (accessToken,refreshToken.Token);
             }
              throw new Exception("Invalid credentials");
+        }
+        public async Task<string> RefreshAccessToken(string tokenString)
+        {
+        return await _tokenGenerator.RefreshAccessTokenAsync(tokenString);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace ManagmentSystemApi.Services
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new(JwtRegisteredClaimNames.Sub, user.Name),
                 new(JwtRegisteredClaimNames.Email, user.Email),
-                new(ClaimTypes.Role, "User")
+                new(ClaimTypes.Role, user.Role)
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -56,17 +56,18 @@ namespace ManagmentSystemApi.Services
             {
                 Id = Guid.NewGuid(),
                 Token = Guid.NewGuid().ToString(),
-                ExpirationDate = DateTime.UtcNow.AddDays(7),
+                ExpirationDate = DateTime.Now.AddDays(7),
+                UserId = user.Id,
             };
            await _context.RefreshToken.AddAsync(refreshToken);
            await _context.SaveChangesAsync();
            return refreshToken;
         }
-        public async Task<string> RefreshAccessTokenAsync(RefreshTokenRequest refreshTokenFromRequest)
+        public async Task<string> RefreshAccessTokenAsync(string refreshTokenInput)
         {
             var refreshToken = await _context.RefreshToken
                 .Include(el => el.User)
-                .FirstOrDefaultAsync(el => el.Token == refreshTokenFromRequest.RefreshToken.ToString());
+                .FirstOrDefaultAsync(el => el.Token == refreshTokenInput);
             if (refreshToken == null || refreshToken.ExpirationDate < DateTime.Now)
             {
                 throw new SecurityTokenException("Refresh token expired or invalid");
@@ -76,7 +77,6 @@ namespace ManagmentSystemApi.Services
 
             _context.RefreshToken.Remove(refreshToken);
             await _context.SaveChangesAsync();
-
             return newAccessToken;
         }
     }

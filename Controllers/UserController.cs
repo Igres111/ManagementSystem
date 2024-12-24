@@ -4,9 +4,11 @@ using ManagmentSystemApi.Dtos;
 using ManagmentSystemApi.Models;
 using ManagmentSystemApi.Repositories;
 using ManagmentSystemApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ManagmentSystemApi.Controllers
 {
@@ -25,9 +27,18 @@ namespace ManagmentSystemApi.Controllers
         }
 
         [HttpGet("GetUsers")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUser()
         {
-            var result = await _context.Users.ToListAsync();
+            var result = await _context.Users.Select(u => new UserInfoDto 
+            {
+                Email = u.Email,
+                Name = u.Name,
+                LastName = u.LastName,
+                Age = u.Age,
+                Id = u.Id
+            }).ToListAsync();
+ 
             return Ok(result);
         }
         [HttpPost("Register")]
@@ -47,8 +58,14 @@ namespace ManagmentSystemApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-           var result = await _methods.LoginUser(user);
+            var result = await _methods.LoginUser(user);
             return Ok(new { result.AccessToken, result.RefreshToken });
+        }
+        [HttpPost("Refresh-Token")]
+        public async Task<IActionResult> RefreshToken(string refreshToken)
+        {
+            var newAccessToken = await _methods.RefreshAccessToken(refreshToken);
+            return Ok(newAccessToken);
         }
     }
 }
