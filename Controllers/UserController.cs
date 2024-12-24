@@ -37,13 +37,18 @@ namespace ManagmentSystemApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var exist = await _context.Users.FirstOrDefaultAsync(x => x.Email == user.Email);
-            if (exist != null)
-            {
-                return BadRequest("User already exist");
-            }
-            await _methods.AddUser(user);
+            await _methods.RegisterUser(user);
             return Ok("Registered Succesfully");
         }
+        [HttpPost("Login")]
+        public async Task<IActionResult> LoginUser(LoginUserDto user)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+           var result = await _methods.LoginUser(user);
+            return Ok(new { result.AccessToken, result.RefreshToken });
         }
+    }
 }

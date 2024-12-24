@@ -11,7 +11,6 @@ namespace ManagmentSystemApi.Models
         public int Age { get; set; }
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-        [Required(ErrorMessage = "User field is required.")]
         public string Role { get; set; } = string.Empty;
         public List<RefreshToken> RefreshTokens { get; set; } = new();
     }
