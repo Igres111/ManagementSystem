@@ -27,10 +27,10 @@ namespace ManagmentSystemApi.Controllers
         }
 
         [HttpGet("GetUsers")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUser()
         {
-            var result = await _context.Users.Select(u => new UserInfoDto 
+            var result = await _context.Users.Select(u => new UserInfoDto
             {
                 Email = u.Email,
                 Name = u.Name,
@@ -38,7 +38,7 @@ namespace ManagmentSystemApi.Controllers
                 Age = u.Age,
                 Id = u.Id
             }).ToListAsync();
- 
+
             return Ok(result);
         }
         [HttpPost("Register")]
@@ -66,6 +66,18 @@ namespace ManagmentSystemApi.Controllers
         {
             var newAccessToken = await _methods.RefreshAccessToken(refreshToken);
             return Ok(newAccessToken);
+        }
+        [HttpDelete("DeleteUser")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            var result = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if(result != null)
+            {
+                _context.Users.Remove(result);
+                await _context.SaveChangesAsync();
+                return Ok("User deleted");
+            }
+            return NotFound("User not found");
         }
     }
 }

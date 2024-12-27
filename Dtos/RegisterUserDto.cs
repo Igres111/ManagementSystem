@@ -22,6 +22,7 @@ namespace ManagmentSystemApi.Dtos
         ErrorMessage = "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, and a number. Special characters are not allowed.")]
         public string Password { get; set; } = string.Empty;
         [Required(ErrorMessage = "Role field is required.")]
+        [RegularExpression("^(Admin|User)$", ErrorMessage = "Role must be 'Admin' or 'User'.")]
         public string Role { get; set; } = string.Empty;
 
     }

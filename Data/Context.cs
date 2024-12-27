@@ -9,6 +9,8 @@ namespace ManagmentSystemApi.Data
         public Context(DbContextOptions options) : base(options) { }
         public DbSet<User> Users { get; set; }
         public DbSet<RefreshToken> RefreshToken { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectForUser> ProjectForUser { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>(entity =>
@@ -21,6 +23,19 @@ namespace ManagmentSystemApi.Data
                 .WithMany(entity => entity.RefreshTokens)
                 .HasForeignKey(entity => entity.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+            });
+            modelBuilder.Entity<ProjectForUser>(entity =>
+            {
+                entity.HasKey(entity => new { entity.UserId, entity.ProjectId });
+                entity.HasOne(entity => entity.Project)
+                .WithMany(entity => entity.ProjectForUser)
+                .HasForeignKey(entity => entity.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(entity => entity.User)
+               .WithMany(entity => entity.ProjectForUser)
+               .HasForeignKey(entity => entity.UserId)
+               .OnDelete(DeleteBehavior.Cascade);
             });
         }
         }

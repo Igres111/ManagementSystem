@@ -4,6 +4,7 @@ using ManagmentSystemApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ManagmentSystemApi.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20241227144629_Add-Migration")]
+    partial class AddMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,21 +51,6 @@ namespace ManagmentSystemApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Projects");
-                });
-
-            modelBuilder.Entity("ManagmentSystemApi.Models.ProjectForUser", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("UserId", "ProjectId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ProjectForUser");
                 });
 
             modelBuilder.Entity("ManagmentSystemApi.Models.User", b =>
@@ -122,25 +110,6 @@ namespace ManagmentSystemApi.Migrations
                     b.ToTable("RefreshToken");
                 });
 
-            modelBuilder.Entity("ManagmentSystemApi.Models.ProjectForUser", b =>
-                {
-                    b.HasOne("ManagmentSystemApi.Models.Project", "Project")
-                        .WithMany("ProjectForUser")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ManagmentSystemApi.Models.User", "User")
-                        .WithMany("ProjectForUser")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ManagmentSystemApi.Services.RefreshToken", b =>
                 {
                     b.HasOne("ManagmentSystemApi.Models.User", "User")
@@ -152,15 +121,8 @@ namespace ManagmentSystemApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ManagmentSystemApi.Models.Project", b =>
-                {
-                    b.Navigation("ProjectForUser");
-                });
-
             modelBuilder.Entity("ManagmentSystemApi.Models.User", b =>
                 {
-                    b.Navigation("ProjectForUser");
-
                     b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
