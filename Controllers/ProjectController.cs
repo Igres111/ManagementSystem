@@ -18,14 +18,13 @@ namespace ManagmentSystemApi.Controllers
             _context = context;
         }
         [HttpGet("Get-Projects")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetProjects()
         {
-          var result = await _context.Projects.ToListAsync();
-         return Ok(result);
+            var result = await _context.Projects.ToListAsync();
+            return Ok(result);
         }
         [HttpPost("Add-Project")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProject(CreateProjectDto project)
         {
             if (!ModelState.IsValid)
@@ -48,6 +47,7 @@ namespace ManagmentSystemApi.Controllers
             return Ok("Project Created");
         }
         [HttpDelete("Delete-Project/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProject(Guid id)
         {
             var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == id);
@@ -57,6 +57,26 @@ namespace ManagmentSystemApi.Controllers
                 await _context.SaveChangesAsync();
                 return Ok("Delete is Successful");
             }
+            return NotFound("Project Not Found");
+        }
+        [HttpPut("Update-Project")]
+        public async Task<IActionResult> ChangeProjectFully(ChangeProjectFull changedProject)
+        {
+            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == changedProject.Id);
+            if (project != null)
+            {
+
+                project.Name = changedProject.Name;
+                project.Description = changedProject.Description;
+                project.WorkerCount = changedProject.WorkerCount;
+                project.Difficulty = changedProject.Difficulty;
+                project.StartDate = changedProject.StartDate;
+                project.EndDate = changedProject.StartDate.AddDays(7);
+                project.Status = changedProject.Status;
+
+                await _context.SaveChangesAsync();
+                return Ok("Project Updated");
+            };
             return NotFound("Project Not Found");
         }
     }
