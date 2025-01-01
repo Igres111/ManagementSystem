@@ -26,6 +26,7 @@ builder.Services.AddDbContext<Context>(options => options.UseSqlServer(connectio
 
 builder.Services.AddScoped<TokenGenerator>();
 builder.Services.AddScoped<IUser,IUserRepository>();
+builder.Services.AddScoped<IProject, IProjectRepository>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(x =>
     {

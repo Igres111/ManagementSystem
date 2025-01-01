@@ -1,6 +1,7 @@
 ﻿using ManagmentSystemApi.Data;
 using ManagmentSystemApi.Dtos;
 using ManagmentSystemApi.Models;
+using ManagmentSystemApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +14,11 @@ namespace ManagmentSystemApi.Controllers
     public class ProjectController : ControllerBase
     {
         public readonly Context _context;
-        public ProjectController(Context context)
+        public readonly IProject _project;
+        public ProjectController(Context context, IProject project)
         {
             _context = context;
+            _project = project;
         }
         [HttpGet("Get-Projects")]
         public async Task<IActionResult> GetProjects()
@@ -31,53 +34,39 @@ namespace ManagmentSystemApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var instance = new Project
+            if (await _project.CreateProject(project))
             {
-                Id = Guid.NewGuid(),
-                Name = project.Name,
-                Description = project.Description,
-                WorkerCount = project.WorkerCount,
-                Difficulty = project.Difficulty,
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddDays(7),
-                Status = "In Progress"
-            };
-            await _context.Projects.AddAsync(instance);
-            await _context.SaveChangesAsync();
-            return Ok("Project Created");
+                return Ok("Success");
+            }
+          return BadRequest("Failed");
         }
         [HttpDelete("Delete-Project/{id}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProject(Guid id)
         {
-            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == id);
-            if (project != null)
+            if (!ModelState.IsValid)
             {
-                _context.Projects.Remove(project);
-                await _context.SaveChangesAsync();
-                return Ok("Delete is Successful");
+                return BadRequest(ModelState);
             }
-            return NotFound("Project Not Found");
+            if(await _project.DeleteProject(id))
+            {
+            return Ok("Project Deleted");
+            }
+            return BadRequest("Project Deleted");
         }
         [HttpPut("Update-Project")]
         public async Task<IActionResult> ChangeProjectFully(ChangeProjectFull changedProject)
         {
-            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == changedProject.Id);
-            if (project != null)
+            if (!ModelState.IsValid)
             {
-
-                project.Name = changedProject.Name;
-                project.Description = changedProject.Description;
-                project.WorkerCount = changedProject.WorkerCount;
-                project.Difficulty = changedProject.Difficulty;
-                project.StartDate = changedProject.StartDate;
-                project.EndDate = changedProject.StartDate.AddDays(7);
-                project.Status = changedProject.Status;
-
-                await _context.SaveChangesAsync();
+                return BadRequest(ModelState);
+            }
+            if(await _project.UpdateProject(changedProject))
+            {
                 return Ok("Project Updated");
-            };
-            return NotFound("Project Not Found");
+            }
+          
+            return BadRequest("Project Updated");
         }
     }
 }
