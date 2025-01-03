@@ -59,15 +59,21 @@ namespace ManagmentSystemApi.Migrations
 
             modelBuilder.Entity("ManagmentSystemApi.Models.ProjectForUser", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserId", "ProjectId");
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("ProjectForUser");
                 });
@@ -140,8 +146,7 @@ namespace ManagmentSystemApi.Migrations
                     b.HasOne("ManagmentSystemApi.Models.User", "User")
                         .WithMany("ProjectForUser")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Project");
 

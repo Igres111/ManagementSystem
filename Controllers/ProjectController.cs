@@ -68,5 +68,10 @@ namespace ManagmentSystemApi.Controllers
           
             return BadRequest("Project Updated");
         }
+        
+        //[HttpPatch("Update-Project-Status")]
+        //public async Task<IActionResult> ChangeProjectStatus(ChangeProjectStatusDto project)
+        //{
+        //}
     }
 }

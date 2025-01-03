@@ -26,7 +26,7 @@ namespace ManagmentSystemApi.Data
             });
             modelBuilder.Entity<ProjectForUser>(entity =>
             {
-                entity.HasKey(entity => new { entity.UserId, entity.ProjectId });
+                entity.HasKey(entity => entity.Id);
                 entity.HasOne(entity => entity.Project)
                 .WithMany(entity => entity.ProjectForUser)
                 .HasForeignKey(entity => entity.ProjectId)
