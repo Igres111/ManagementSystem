@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ManagmentSystemApi.Controllers
 {
@@ -68,10 +69,34 @@ namespace ManagmentSystemApi.Controllers
           
             return BadRequest("Project Updated");
         }
-        
-        //[HttpPatch("Update-Project-Status")]
-        //public async Task<IActionResult> ChangeProjectStatus(ChangeProjectStatusDto project)
-        //{
-        //}
+
+        [HttpPut("Update-Project-Status")]
+        public async Task<IActionResult> ChangeProjectStatus(Guid Id, string status)
+        {
+            if(await _project.ChangeStatus(Id, status))
+            {
+                return Ok("Status Changed");
+            }
+          return BadRequest("Not Found");
+        }
+        [HttpPost("Connect-User-to-Project")]
+        public async Task<IActionResult> ConnectUserToProject(ConnectProjectToUserDto project)
+        {
+            await _context.ProjectForUser.AddAsync(new ProjectForUser
+            {
+                Id = Guid.NewGuid(),
+                ProjectId = project.ProjectId,
+                UserId = project.UserId,
+            });
+            await _context.SaveChangesAsync();
+            return Ok("Connected");
+        }
+        [HttpGet("Get-All-User-Projects")]
+        public async Task<IActionResult> GetAllUserProjects(Guid userId)
+        {
+            var result = await _project.GetUserProjects(userId);
+
+            return Ok(result);
+        }
     }
 }

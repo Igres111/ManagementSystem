@@ -61,5 +61,23 @@ namespace ManagmentSystemApi.Repositories
             }
             return false;
         }
+        public async Task<bool> ChangeStatus(Guid id, string status)
+        {
+            var project = await _context.Projects.FirstOrDefaultAsync(p => p.Id == id);
+            if (project != null)
+            {
+                project.Status = status;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+        public async Task<List<Project>> GetUserProjects(Guid userId)
+        {
+           var result = await _context.Projects.Include(x => x.ProjectForUser)
+          .Where(x => x.ProjectForUser.Any(x => x.UserId == userId))
+          .ToListAsync();
+            return result;
+        }
     }
 }
