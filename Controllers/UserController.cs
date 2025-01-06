@@ -27,7 +27,7 @@ namespace ManagmentSystemApi.Controllers
         }
 
         [HttpGet("GetUsers")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUser()
         {
             var result = await _context.Users.Select(u => new UserInfoDto

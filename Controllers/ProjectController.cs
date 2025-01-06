@@ -22,13 +22,14 @@ namespace ManagmentSystemApi.Controllers
             _project = project;
         }
         [HttpGet("Get-Projects")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetProjects()
         {
             var result = await _context.Projects.ToListAsync();
             return Ok(result);
         }
         [HttpPost("Add-Project")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProject(CreateProjectDto project)
         {
             if (!ModelState.IsValid)
@@ -42,7 +43,7 @@ namespace ManagmentSystemApi.Controllers
           return BadRequest("Failed");
         }
         [HttpDelete("Delete-Project/{id}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProject(Guid id)
         {
             if (!ModelState.IsValid)
@@ -71,6 +72,7 @@ namespace ManagmentSystemApi.Controllers
         }
 
         [HttpPut("Update-Project-Status")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ChangeProjectStatus(Guid Id, string status)
         {
             if(await _project.ChangeStatus(Id, status))
@@ -80,6 +82,7 @@ namespace ManagmentSystemApi.Controllers
           return BadRequest("Not Found");
         }
         [HttpPost("Connect-User-to-Project")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ConnectUserToProject(ConnectProjectToUserDto project)
         {
             await _context.ProjectForUser.AddAsync(new ProjectForUser
@@ -92,6 +95,7 @@ namespace ManagmentSystemApi.Controllers
             return Ok("Connected");
         }
         [HttpGet("Get-All-User-Projects")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllUserProjects(Guid userId)
         {
             var result = await _project.GetUserProjects(userId);
